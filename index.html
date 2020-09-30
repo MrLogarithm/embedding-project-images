@@ -1,0 +1,116 @@
+<html>
+  <head>
+    <title>Image Embedding Projector</title>
+	<script src="jszip.min.js"></script>
+
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<style>
+.hover {
+  fill: red;
+}
+image.hover {
+  outline: 1px solid red;
+}
+
+td {
+  padding:3px;
+}
+
+.ttimg {
+  height: 40px;
+  padding: 0px;
+  margin-bottom: -35px;
+}
+.wordembedtip {
+position:absolute;
+width: 250px;
+pointer-events:none;
+background-color:lightgrey;
+padding:5px;
+}
+	</style>
+  </head>
+  <body>
+    <ol>
+      <li>Upload embeddings and images:
+        <input type='file' id='files' multiple onchange='load()'>
+      </li>
+      <li>The figure will render after a few seconds. If it doesn't, click here:
+	<button onclick='setup()'>Redraw</button>
+      </li>
+      <br/>
+      Resize images: <input id='size'      min=0 max=2 step=0.1 type='range' onchange='resize()'>
+      Resize labels: <input id='labelsize' min=0 max=2 step=0.1 type='range' onchange='resize()'>
+      Frequency cutoff: <input id='minfreq' value=1 min=1 max=20 step=1 type='range' onchange='resize()'>
+    </ol>
+
+    <div id="embedding_window">
+    <!--
+      <div class="buttons" style="position:absolute;left:80px;top:8px;">
+        <button data-zoom="+1">-</button>
+        <button data-zoom="-1">+</button>
+      </div>
+    -->
+    <svg id='embedding_svg'></svg>
+    </div>
+<script src="embed2d.js"></script>
+
+    <script>
+      var imgzip;
+      var sign2img = {};
+      function setupSignImageDict() {
+        Object.keys(imgzip.files).forEach(function (filename) {
+	  sign2img[filename] = '';
+            imgzip.files[filename].async('base64').then(function (fileData) {
+              sign2img[filename] = 'data:image/png;base64,' + fileData;
+            })
+	})
+	    }
+      /*function getimgfromzip(imgname, ret){
+        Object.keys(imgzip.files).forEach(function (filename) {
+	  if (filename == imgname) {
+            imgzip.files[filename].async('base64').then(function (fileData) {
+              ret[0] = 'data:image/png;base64,' + fileData;
+            })
+          }
+	})
+      }*/
+      var plotdata;
+
+      function load(){
+	      var x = document.getElementById('files');
+	      if ('files' in x) {
+		      if (x.files.length == 0) {
+			      console.log('no files');
+			    }
+		      else {
+			      for (var i = 0; i < x.files.length; i++) {
+				      var file = x.files[i];
+			      console.log(file);
+				      if (file.name.endsWith('csv')) {
+plotdata = URL.createObjectURL(file);
+					    } else if (file.name.endsWith('zip')) {
+
+var jsZip = JSZip;
+jsZip.loadAsync(file).then(function (zip) {
+	imgzip = zip;
+	setupSignImageDict();
+	function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
+
+      sleep(2500).then(()=>{setup()});
+});
+
+				    }
+      }
+			    }
+		    }
+	    }
+
+        function setup(){
+		if (!drawn) {drawFirstTime()} else {updateChart()}
+      }
+    </script>
+  </body>
+</html>
