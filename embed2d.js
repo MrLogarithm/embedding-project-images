@@ -138,6 +138,8 @@ d3.csv(plotdata, function(error, data) {
 
 	// Get nearest neighbors in embedding space
 	var neighborlist = neighbors(d,10);
+	// Sort neighborlist in descending similarity
+	neighborlist.sort((a, b){return a[1] - b[1]})
 	// highlight 
 	d3.selectAll('.embed_img').classed('hover', function(d){return neighborlist.map(function(x){return x[0];}).includes(d.name);});
 	d3.selectAll('text').classed('hover', function(d){return neighborlist.map(function(x){return x[0];}).includes(d.name);});
